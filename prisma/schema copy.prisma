@@ -1,0 +1,97 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model user {
+  // 用户ID 不能重复 默认为UUID
+  id           String   @id @unique @default(uuid())
+  // 用户名 @map表示为字段定义别名
+  userName     String   @unique @map("user_name")
+  // 密码
+  userPassword String   @default("123456") @map("user_password")
+  // 手机号
+  userPhone    Int?     @unique @map("user_phone")
+  // 昵称
+  userNick     String?  @default("佚名") @map("user_nick")
+  // 地址
+  userAddress  String?  @default("") @map("user_address")
+  // 性别
+  userGender   String?  @default("") @map("user_gender")
+  // 创建时间
+  createTime   DateTime @default(now()) @map("create_time")
+  // 更新时间
+  updateTime   DateTime @map("update_time")
+
+  graduationList graduation[]
+  // @@map("user") 重命名表名
+}
+
+// 学校模型
+model school {
+  id                  String            @id @unique @default(uuid())
+  // 学校名字
+  schoolName          String            @unique @map("school_name")
+  // 学校等级  重点高中 普通高中 本一 本二 本三 211 985  
+  schoolCategory      String            @map("school_category")
+  // 学校地址
+  schoolAdress        String            @map("school_adress")
+  schoolEducationList schoolEducation[]
+}
+
+// 学历模型
+model seducation {
+  id                  String            @id @unique @default(uuid())
+  // 学历编码
+  educationCode       String            @unique @map("education_code")
+  // 小学 初中 高中 中专 高专 专科 本科 硕士 博士  
+  educationName       String            @map("education_name")
+  // 小学 初中 高中 中专 高专 专科 本科 硕士 博士 
+  educationMajor      String            @map("education_major")
+  // 学习年限
+  educationYear       String            @map("education_Year")
+  // 全日制 非全日制 
+  educationType       Boolean           @map("education_type")
+  schoolEducationList schoolEducation[]
+}
+
+// 学校学历模型
+model schoolEducation {
+  id                  String      @id @unique @default(uuid())
+  schoolEducationCode String      @unique @map("school_education_code")
+  // 学历
+  seducationModel     seducation? @relation(fields: [educationId], references: [id])
+  educationId         String?
+  // 学校
+  schoolModel         school?     @relation(fields: [schoolId], references: [id])
+  schoolId            String?
+
+  graduationList graduation[]
+}
+
+// 毕业模型
+model graduation {
+  id                   String           @id @unique @default(uuid())
+  // 毕业时间
+  graduationYear       Int              @default(60) @map("graduation_year")
+  // 毕业编号
+  graduationCode       Int              @default(60) @map("graduation_code")
+  // 毕业项目
+  graduationProject    Int              @default(60) @map("graduation_project")
+  // 毕业论文
+  graduationPaper      Int              @default(60) @map("graduation_paper")
+  // 毕业分数
+  graduationScore      Int              @default(60) @map("graduation_score")
+  // 毕业结果 
+  graduationResult     String           @default("毕业证书") @map("graduation_result")
+  // 学校学历
+  schoolEducationModel schoolEducation? @relation(fields: [schoolEducationId], references: [id])
+  schoolEducationId    String?
+  // 学生
+  userModel            user?            @relation(fields: [userId], references: [id])
+  userId               String?
+}
