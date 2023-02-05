@@ -21,3 +21,7 @@ git push https://github.com/huang7000/nest-prisma-demo.git
 不会玩了
 
 0228
+
+git config --global user.name "huang7000" 
+
+git config --global  user.email "1621393570@qq.com" 
